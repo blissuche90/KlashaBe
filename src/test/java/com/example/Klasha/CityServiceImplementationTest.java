@@ -1,0 +1,65 @@
+package com.example.Klasha;
+
+import com.example.Klasha.apiRequest.DataRequest;
+import com.example.Klasha.apiResponse.BaseResponse;
+import com.example.Klasha.apiResponse.DataResponse;
+import com.example.Klasha.services.serviceImplementation.CityServiceImplementation;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CityServiceImplementationTest {
+    @Mock
+    private RestTemplate restTemplate;
+    @InjectMocks
+    private CityServiceImplementation cityService;
+
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+    @Value("${all.cities.endpoint:https://countriesnow.space/api/v0.1/countries/population/cities/filter}")
+    private String allCityApi;
+
+    @Test
+    public void testGetAllCities() {
+
+        DataRequest ghanaRequest = new DataRequest();
+        ghanaRequest.setCountry("ghana");
+        ghanaRequest.setOrder("dsc");
+        ghanaRequest.setOrderBy("value");
+        ghanaRequest.setLimit(10L);
+
+        DataResponse ghanaResponse = new DataResponse();
+        ghanaResponse.setError(false);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type","application/json");
+        DataRequest request = new DataRequest();
+        request.setCountry("Ghana");
+        request.setOrder("dsc");
+        request.setOrderBy("value");
+        request.setLimit(10L);
+        HttpEntity<DataRequest> ghanaEntity = new HttpEntity<>(request,headers);
+
+        ResponseEntity<DataResponse> ghanaResponseEntity = restTemplate.exchange(allCityApi, HttpMethod.POST, ghanaEntity, DataResponse.class);
+
+        BaseResponse result = cityService.getAllCities(5L);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.getGhana().isError());
+        assertNull(result.getItaly());
+        assertNull(result.getNewZealand());
+        System.out.println(ghanaResponseEntity);
+
+    }
+}
